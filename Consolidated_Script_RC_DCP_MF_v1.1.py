@@ -16,8 +16,8 @@ def login():
     try:
         browser.get("https://bliss.uberinternal.com")
         browser.fullscreen_window()
-        browser.find_element_by_id('user_email').send_keys('vinay.adithya@uber.com')
-        browser.find_element_by_id('user_password').send_keys('Rafadafa5fj5!8343')
+        browser.find_element_by_id('user_email').send_keys('')
+        browser.find_element_by_id('user_password').send_keys('')
         browser.find_element_by_id('user_submit').click()
         time.sleep(5)
         browser.find_element_by_css_selector("body").click()
