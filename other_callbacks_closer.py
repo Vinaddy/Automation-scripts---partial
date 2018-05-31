@@ -9,7 +9,7 @@ browser = webdriver.Chrome()
 
 def login():
     try:
-        browser.get("https://bliss.uberinternal.com")
+        browser.get("https:xyz.com")
         browser.fullscreen_window()
         #browser.find_element_by_id('user_email').send_keys('')
         #browser.find_element_by_id('user_password').send_keys('')
@@ -23,7 +23,7 @@ def login():
 
 def get_a_contact():
     try:
-        browser.get("https://bliss.uberinternal.com")
+        browser.get("https:xyz.com")
         browser.fullscreen_window()
         time.sleep(9)
     except Exception:
