@@ -1,6 +1,6 @@
-#Consolidated script for Rider callbacks, Delivery partner callbacks and Mexico facturas
+#Consolidated script for issue_1/ issue_2/ issue_3
 #This code has been tested for errors on multiple instances and hold the corrected time and data logic
-#Please tag yourself to Rider callbacks, Delivery partner callbacks and Mexico facturas CTGs befoe running this script
+#Please tag yourself to issue_1/ issue_2/ issue_3 befoe running this script
 
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -592,133 +592,6 @@ def core_process_DPC():
             print(e)
 
 
-        #time check code here
-        try:
-            time_check = check_date_time(time_of_first_contact)
-            print("time check is " + str(time_check))
-        except Exception:
-            failed_time_check = 1
-
-
-        if(time_check < 24):
-            print("informed partner to wait for 48 hours")
-            close_ticket_DPC(first_name,1)
-
-        try:
-            actual_fare_selector = '#context-pane > div > div > a > section > div.soft-small.desk-wide-soft-small--sides > div > div:nth-child(1)'
-            actual_fare = float(browser.find_element_by_css_selector(actual_fare_selector).text[6:].replace(',',''))
-        except Exception:
-            actual_fare = 0
-            print("failed in actual fare. Defaulting as zero")
-
-        try:
-
-            conversation_pane_selector = '#app > div > div > main'
-            conversation_history = browser.find_element_by_css_selector(conversation_pane_selector).text
-            #print("conversation_history")
-            #print(conversation_history)
-
-            words= conversation_history.split()
-            #print("words in conversation history")
-            #print(words)
-
-        except Exception:
-            print("failed to load conversation history. redirecting a new contact")
-            time.sleep(2)
-            route_ticket_DPC()
-
-
-        content_checker = conversation_history.lower().split("date of your trip")
-
-        if (full_name.lower() in content_checker[-1].lower()):
-            print("routing this ticket because this was a reopen from closed ticket")
-            route_ticket_DPC()
-
-        try:
-            content_checker2 = conversation_history.lower()
-            syntaxes = content_checker2.count("date of your trip")
-            print("syntaxes = " + str(syntaxes))
-            driver_names = content_checker2.count(full_name.lower())-1
-            print("driver_names = " + str(driver_names))
-
-            if(syntaxes == driver_names):
-                free_text = 0
-            else:
-                free_text = 1
-        except Exception:
-            print("failed in content checker")
-
-        if(free_text == 1):
-            print("routing this ticket because this was a reopen from closed ticket with text in between syntaxes")
-            route_ticket_DPC()
-
-        #print("demarkation")
-        #print(content_checker[-1])
-
-        print("demarkation")
-
-        try:
-            actual_fare_selector2 = '#context-pane > div > div > a > section > div.soft-small.desk-wide-soft-small--sides > div > div:nth-child(1)'
-            browser.find_element_by_css_selector(actual_fare_selector2).click()
-            time.sleep(1) #can_be_deleted
-        except Exception:
-            print("failed to click on fare")
-
-        try:
-            url_trip_uuid = browser.current_url
-            trip_uuid = url_trip_uuid.split("/")[-1]
-            print("trip_uuid" + trip_uuid)
-        except Exception as e:
-            print(e)
-
-        go_back_selector = '#context-pane > div.position--fixed.one-whole.context-pane__header.bg-white > div.soft-small--sides.soft-small--bottom > ul > li:nth-child(1) > a > span'
-        browser.find_element_by_css_selector(go_back_selector).click()
-
-        time.sleep(1)
-
-        #fetch rider details
-
-        try:
-            browser.find_element_by_css_selector(first_name_selector).click()
-            time.sleep(1) #can_be_deleted
-        except Exception as e:
-            print("failed to click on rider name")
-            print(e)
-
-        try:
-            for i in range (1,4):
-                rider_notes_header_selector = "#context-pane > div.context__details.soft--sides > div:nth-child(" + str(i) +") > header > div > span > h4"
-                table_header1 = browser.find_element_by_css_selector(rider_notes_header_selector).text
-
-                #table notes processing
-                reference_note =""
-                status_string = ""
-                trip_not_found = 0
-                status_outcome_refund = ["already appeased","other - 1 sided refund", "refused destination - 2 sided refund","rider canceled - driver>100m and enroute - one sided refund","rider canceled - driver>100m and not enroute","rider canceled - driver>100m and not enroute - two sided refund","refused destination - 2 sided refund"]
-                status_outcome_no_refund = ["rider canceled - driver within 100m - no refund"]
-                status_outcome_driver_cancel = ["no refund - driver cancellation"]
-
-                if(table_header1.lower() == "notes"):
-                    rider_notes_selector = "#context-pane > div.context__details.soft--sides > div:nth-child("+str(i)+") > div > table"
-                    rider_notes1 = browser.find_element_by_css_selector(rider_notes_selector).text
-                    print("______rider notes 1 _____")
-
-
-                    try:
-                        all_notes_button_selector = "#context-pane > div.context__details.soft--sides > div:nth-child("+str(i)+") > header > div > a"
-                        browser.find_element_by_css_selector(all_notes_button_selector).click()
-
-                        all_notes_selector = "#context-pane > div.context__details--user-summary-hidden.push-huge--top.soft-huge--top.soft--sides > div > div > table"
-                        rider_notes1 = browser.find_element_by_css_selector(all_notes_selector).text
-                    except Exception:
-                        print("no extra page of table notes found. Hence continuing")
-
-                    print(rider_notes1)
-                    browser.find_element_by_css_selector(go_back_selector).click()
-
-                    if(rider_notes1.lower().count("status") == 0):
-                        print("routing because there is notes but no relevant message")
-                        route_ticket_DPC()
 
                     try:
                         status_string = rider_notes1.lower().split(trip_uuid)[0].split("status - ")[-1].split(" trip uuid")[0]
@@ -895,47 +768,6 @@ def core_process_MF():
     except Exception:
         print("failed to extract content from table")
 
-    try:
-        all_notes_selector = '#context-pane > div.context__details.soft--sides > div.tableau.bg-white.position--relative.tableau__transition.push--bottom > header > div > a'
-        browser.find_element_by_css_selector(all_notes_selector).click()
-        table_notes2_selector = '#context-pane > div.context__details--user-summary-hidden.push-huge--top.soft-huge--top.soft--sides > div > div > table'
-        table_notes2 = browser.find_element_by_css_selector(table_notes2_selector).text
-        print("table notes2")
-        print(table_notes2)
-        print("There is a second page of table notes for this contact")
-    except Exception:
-        print("no table notes 2")
-        table_notes2 = "XYZ"
-
-    table_notes_final = table_notes+" "+table_notes2
-    print("table notes " + table_notes_final)
-
-    try:
-        go_back_selector = '#context-pane > div.position--fixed.one-whole.context-pane__header.bg-white > div.soft-small--sides.soft-small--bottom > ul > li:nth-child(1) > a > span'
-        browser.find_element_by_css_selector(go_back_selector).click()
-    except Exception:
-        print("tried to go back but failed")
-
-    if("UPDATED CONTACT STATUS TO SOLVED" in conversation_history):
-        print("routing this ticket because this was a reopen from closed ticket")
-        route_ticket_MF(flag_cancelled)
-
-    content_checker = conversation_history.lower().split("date of your trip")
-
-    print(content_checker)
-    print("demarkation")
-    #print("demarkation")
-    #print(content_checker[-1])
-
-    if (full_name.lower() in content_checker[-1].lower()):
-        route_ticket_MF(flag_cancelled)
-
-    ##Core logic now for cancellations now
-
-    if(flag_driver_cancelled == 1 and actual_fare > 0 and "INR automatically added to rider's account by Bliss" in table_notes_final):
-        close_ticket_MF(first_name,101)
-    elif(flag_driver_cancelled == 1 and actual_fare > 0):
-        close_ticket_MF(first_name,102)
     elif(flag_driver_cancelled == 1 and actual_fare < 1):
         close_ticket_MF(first_name, 103)
     elif(flag_rider_cancelled == 1 and actual_fare > 1 and "INR automatically added to rider's account by Bliss" in table_notes_final):
